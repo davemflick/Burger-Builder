@@ -54,7 +54,9 @@ class BurgerBuilder extends Component {
   }
 
   togglePurchasingHandler = () => {
-    this.setState({purchasing: !this.state.purchasing});
+    this.setState(prevState => {
+      return {purchasing: !prevState.purchasing};
+    });
   }
 
   purchaseContinuteHandler = () => {
