@@ -3,6 +3,8 @@ import Aux from '../../hoc/Aux';
 //Components
 import Burger from '../../components/Burger/Burger';
 import BuildControls from '../../components/Burger/BuildControls/BuildControls';
+import Modal from '../../components/UI/Modal/Modal';
+import OrderSummary from '../../components/Burger/OrderSummary/OrderSummary';
 
 const INGREDIENT_PRICES = {
   salad: 0.5,
@@ -19,15 +21,22 @@ class BurgerBuilder extends Component {
       cheese: 0,
       meat: 0
     },
-    totalPrice: 4
+    totalPrice: 4,
+    purchasable: false,
+    purchasing: false,
+  }
+
+  updatePurchaseState(ingredients) {
+    return Object.keys(ingredients).reduce((total, ing) => {
+      return total + ingredients[ing];
+    }, 0) >= 1; 
   }
 
   addIngredientHandler = (type) => {
     const ingredients = {...this.state.ingredients}
     ingredients[type] += 1;
     const totalPrice = this.state.totalPrice + INGREDIENT_PRICES[type];
-    console.log(totalPrice);
-    this.setState({ingredients, totalPrice});
+    this.setState({ingredients, totalPrice, purchasable: true});
   }
 
   removeIngredientHandler = (type) => {
@@ -36,8 +45,20 @@ class BurgerBuilder extends Component {
     if (oldCount > 0) {
       ingredients[type] -= 1;
       const totalPrice = this.state.totalPrice - INGREDIENT_PRICES[type]
-      this.setState({ingredients, totalPrice});
+      this.setState({
+        ingredients,
+        totalPrice,
+        purchasable: this.updatePurchaseState(ingredients)
+      });
     }
+  }
+
+  togglePurchasingHandler = () => {
+    this.setState({purchasing: !this.state.purchasing});
+  }
+
+  purchaseContinuteHandler = () => {
+    console.log('Continue Purchase');
   }
 
   render() {
@@ -54,7 +75,17 @@ class BurgerBuilder extends Component {
           remove={this.removeIngredientHandler}
           disabled={disableInfo}
           price={this.state.totalPrice}
+          purchasable={this.state.purchasable}
+          purchasing={this.togglePurchasingHandler}
         />
+        <Modal show={this.state.purchasing} toggle={this.togglePurchasingHandler}>
+          <OrderSummary
+            ingredients={this.state.ingredients}
+            cancel={this.togglePurchasingHandler}
+            continue={this.purchaseContinuteHandler}
+            totalPrice={this.state.totalPrice.toFixed(2)}
+          />
+        </Modal>
       </Aux>
     );
   }
