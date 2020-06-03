@@ -9,7 +9,7 @@ import { connect } from 'react-redux';
 class Orders extends Component {
 
   componentDidMount() {
-    this.props.onFetchOrders();
+    this.props.onFetchOrders(this.props.token, this.props.userId);
   }
 
   render() {
@@ -21,7 +21,7 @@ class Orders extends Component {
           console.log(order)
           ingredients = Object.keys(order.ingredients).map(ing => `${ing}: (${order.ingredients[ing]})`).join(' ');
         }
-        return <Order key={order.key || order.id} ingredients={ingredients} price={order.price} />
+        return <Order key={order.key} ingredients={ingredients} price={order.price} />
       })
     }
     return (
@@ -36,12 +36,14 @@ const mapStateToProps = state => {
   return  {
     orders: state.order.orders,
     loading: state.order.loading,
+    token: state.auth.token,
+    userId: state.auth.userId,
   }
 }
 
 const mapDispatchToProps = dispatch => {
   return {
-    onFetchOrders: () => dispatch(actions.fetchOrders())
+    onFetchOrders: (token, userId) => dispatch(actions.fetchOrders(token, userId))
   }
 }
 
